@@ -17,6 +17,10 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Scanner;
 
 import javax.swing.ButtonModel;
 import javax.swing.ImageIcon;
@@ -28,6 +32,7 @@ import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
@@ -87,11 +92,17 @@ public class HomePage extends JFrame implements ActionListener {
     private File myLocation;
     
     private JList myList;
+
+    private String myEmail;
+
+    private String myName;
+
+    private JButton mySettings;
     
     //make jmenu bar
     //list of buttons, examples on canvas.
     //make each list item into its own page.
-    //
+    //first 2 lines of csv should be name and email.
     /**
      * Initializes fields with reasonable values.
      * 
@@ -99,7 +110,12 @@ public class HomePage extends JFrame implements ActionListener {
     public HomePage() {
         
         
+        myEmail = "Email not Given";
         
+        myName = "Name not Given";
+        
+
+        mySettings = new JButton("Settings");
         
         //JScrollPane listScroller = new JScrollPane(myList);
         
@@ -218,8 +234,35 @@ public class HomePage extends JFrame implements ActionListener {
                 }
              }
         });
+        //make jpanel of buttons and place onto scorll pane, format to your desire and make button on right for veiwing.
+        //THIS IS AN EXAMPLE MIRPAN DO WHAT YOU WILL WITH IT.
         
-        
+        //to do a list of jlist buttons.
+//        private List<JButton> fillButtonList(final List<Filter> theButtons) 
+//        {
+//            final List<JButton> buttons = new ArrayList<>();
+//            for (final Filter filters : theButtons) 
+//            {
+//                buttons.add(createFilterButton(filters));
+//            }
+//            return buttons;
+//        }
+//        /**
+//         * 
+//         * @param theFilter The filter/list of filters being added as button(s).
+//         * @return the Buttons that were created.
+//         */
+//        private JButton createFilterButton(final Filter theFilter) 
+//        {
+//            final JButton filterButton = new JButton(theFilter.getDescription());
+//            filterButton.addActionListener(theEvent -> 
+//            {
+//                theFilter.filter(myImage);
+//                myLabel.setIcon(new ImageIcon(myImage));
+//            });            
+//            return filterButton;    
+//        }
+//        
         
         //Set the sizes of the buttons.
         myAddButton.setPreferredSize(new Dimension(width, height));
@@ -342,46 +385,64 @@ public class HomePage extends JFrame implements ActionListener {
         
         if (theEvent.getSource() == myAddButton) {
             this.setVisible(false);
-            new AddPage();
+            new AddPage(this, myApp);
             
         } else if (theEvent.getSource() == myAboutButton) {
             
             new AboutMe();
         } else if(theEvent.getSource() == myImportButton) {
-            
             openFile();
         } else if(theEvent.getSource() == myExportButton) {
-            
             saveFile();
+        } else if(theEvent.getSource() == mySettings) {
+            SettingPopUp set = new SettingPopUp(myEmail, myName);
+            myEmail = set.getEmail();
+            myName = set.getName();
+            
         }
     }
     
     private void openFile() {
     
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("csv", "txt");
-        
+        //FileNameExtensionFilter filter = new FileNameExtensionFilter("csv", "txt");
         myOpenFile.setCurrentDirectory(myLocation);
-        
-        myOpenFile.setFileFilter(filter);
-        
+        //myOpenFile.setFileFilter(filter);
+
         final int returnValue = myOpenFile.showOpenDialog(null); 
-        
-        if (returnValue == JFileChooser.APPROVE_OPTION) {
-            
-            myLocation = myOpenFile.getCurrentDirectory();
-            
-            myApp.loadProjects(myOpenFile.getSelectedFile());
+
+        if (returnValue == JFileChooser.APPROVE_OPTION) 
+        {
+            try {
+                myLocation = myOpenFile.getCurrentDirectory();
+                Scanner file = new Scanner(myOpenFile.getSelectedFile());
+                if(file.hasNext()) {
+                    myEmail = file.next();
+                    
+                }
+                if(file.hasNext()) {
+                    myName = file.next();
+                }
+                myApp.loadProjects(file);
+            } catch (final FileNotFoundException e) 
+            {
+                JOptionPane.showMessageDialog(null, "File Not Found"); 
+            }
         }
     }
     
     private void saveFile() {
         myOpenFile.setCurrentDirectory(myLocation);
-        
-        final int returnValue = myOpenFile.showSaveDialog(null);//pop up needed if file not found.
-        
-        if (returnValue == JFileChooser.APPROVE_OPTION) {
-            
-            myLocation = myOpenFile.getSelectedFile();
+        final int returnValue = myOpenFile.showSaveDialog(null);
+        if (returnValue == JFileChooser.APPROVE_OPTION) 
+        {
+            try(FileWriter export = new FileWriter(myOpenFile.getSelectedFile()+".csv")) {
+                export.write(myEmail + "\n" + myName + "\n");
+                export.close();
+            } catch (IOException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+
         }
     }
    
