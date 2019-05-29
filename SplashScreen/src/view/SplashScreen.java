@@ -27,8 +27,8 @@ public class SplashScreen extends JWindow {
     /** A number for Serialization. */
     private static final long serialVersionUID = -2102839873375270630L;
                     
-    /** Constant time for each update. */
-    private static final int TIMER_PAUSE = 100; 
+    /** Constant time for each update. this controls time to change splash finish time. */
+    private static final int TIMER_PAUSE = 10; 
     
     /** The width of the panel. */
     private static final int WIDTH = 600;
@@ -72,7 +72,7 @@ public class SplashScreen extends JWindow {
         final JPanel panel = new JPanel();
         
         final JLabel imgLabel = new JLabel("",
-                                        new ImageIcon("./Resources/App Logo.png"), 
+                                        new ImageIcon("./Resources/App Logo_without name.png"), 
                                         SwingConstants.CENTER);
 
 //        final JLabel text = new JLabel("ADVANTAGE", SwingConstants.CENTER); //option 1
@@ -91,6 +91,7 @@ public class SplashScreen extends JWindow {
         
         this.setVisible(true);
     }
+    
 
 
     /**
